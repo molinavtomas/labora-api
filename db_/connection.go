@@ -1,11 +1,11 @@
-package db
+package db_
 
 import (
 	"database/sql"
 	"fmt"
 )
 
-func conectionDB() (*sql.DB, error) {
+func ConectionDB() (*sql.DB, error) {
 	// Configurar la conexión a PostgreSQL
 	db, err := sql.Open("postgres", "user=postgres dbname=personas_db host=localhost sslmode=disable password=kys0128tomas port=5433")
 	if err != nil {
