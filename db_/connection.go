@@ -3,11 +3,13 @@ package db_
 import (
 	"database/sql"
 	"fmt"
+
+	_ "github.com/lib/pq"
 )
 
 func ConectionDB() (*sql.DB, error) {
 	// Configurar la conexión a PostgreSQL
-	db, err := sql.Open("postgres", "user=postgres dbname=personas_db host=localhost sslmode=disable password=kys0128tomas port=5433")
+	db, err := sql.Open("postgres", "user=postgres dbname=personas_db host=localhost sslmode=disable password=kys0128tomas port=5432")
 	if err != nil {
 		return nil, fmt.Errorf("error al abrir la conexión a la base de datos: %w", err)
 	}

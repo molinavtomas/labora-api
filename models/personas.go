@@ -8,6 +8,11 @@ type Persona struct {
 	CountryCode string `json:"countryCode"`
 }
 
+type PersonaExtendida struct {
+	Persona
+	CountryInfo
+}
+
 func (p *Persona) Validate() bool {
 	if p.Nombre == "" || p.Apellido == "" || p.Edad == 0 || p.CountryCode == "" {
 		return false

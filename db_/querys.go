@@ -7,33 +7,35 @@ import (
 	"github.com/molinavtomas/labora-api-personas/models"
 )
 
-func CreatePersona(db *sql.DB, p models.Persona) error {
+func CreatePersona(db *sql.DB, p models.Persona) (int, error) {
 	nombre := p.Nombre
 	apellido := p.Apellido
 	edad := p.Edad
 	country_code := p.CountryCode
 
 	// Preparar la consulta SQL
-	query := "INSERT INTO personas (nombre, apellido, edad, country_code) VALUES ($1, $2, $3, $4)"
+	query := "INSERT INTO personas (nombre, apellido, edad, country_code) VALUES ($1, $2, $3, $4) RETURNING id;"
 
 	// Ejecutar la consulta
-	_, err := db.Exec(query, nombre, apellido, edad, country_code)
-	if err != nil {
-		return fmt.Errorf("error al crear persona en la base de datos: %w", err)
+	row := db.QueryRow(query, nombre, apellido, edad, country_code)
+
+	var id_ int
+	if err := row.Scan(&id_); err != nil {
+		return -1, fmt.Errorf("error al crear persona en la base de datos: %w", err)
 	}
 
 	fmt.Println("Persona creada correctamente")
-	return nil
+	return id_, nil
 }
 
 func ObtenerPersonas(db *sql.DB) ([]models.Persona, error) {
 	// Preparar la consulta SQL
 	query := "SELECT * FROM personas"
 
-	// Ejecutar la consulta SQL de inserción
+	// Ejecutar la consulta SQL
 	rows, err := db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("Error al obtener las personas en la base de datos: %w", err)
+		return nil, fmt.Errorf("error al obtener las personas en la base de datos: %w", err)
 	}
 
 	defer rows.Close()
@@ -44,91 +46,60 @@ func ObtenerPersonas(db *sql.DB) ([]models.Persona, error) {
 	for rows.Next() {
 		var persona models.Persona
 		if err := rows.Scan(&persona.ID, &persona.Nombre, &persona.Apellido, &persona.Edad, &persona.CountryCode); err != nil {
-			return nil, fmt.Errorf("Error al escanear fila: %w", err)
+			return nil, fmt.Errorf("error al escanear fila: %w", err)
 		}
 		personas = append(personas, persona)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("Error en las filas: %w", err)
+		return nil, fmt.Errorf("error en las filas: %w", err)
 	}
 
 	fmt.Println("Datos obtenidos correctamente")
 	return personas, nil
 }
 
-func ObtenerPersona(db *sql.DB, id int) error {
+func ObtenerPersonaDB(db *sql.DB, id int) (models.Persona, error) {
 	// Preparar la consulta SQL
 	query := "SELECT * FROM personas where id = $1"
 
-	// Ejecutar la consulta SQL de inserción
-	_, err := db.Exec(query, id)
-	if err != nil {
-		return fmt.Errorf("Error al obtener la persona en la base de datos: %w", err)
+	// Ejecutar la consulta SQL
+	row := db.QueryRow(query, id)
+
+	var persona models.Persona
+	if err := row.Scan(&persona.ID, &persona.Nombre, &persona.Apellido, &persona.Edad, &persona.CountryCode); err != nil {
+		return models.Persona{}, fmt.Errorf("persona con ID %d no encontrada en la base de datos, error: %w", id, err)
 	}
 
 	fmt.Println("Datos obtenidos correctamente")
-	return nil
+	return persona, nil
 }
 
-func ModificarNombrePersona(db *sql.DB, id int, p models.Persona, nuevo_nombre string) error {
-	// Preparar la consulta SQL de modificación
-	query := "UPDATE personas SET nombre = $2 WHERE id = $1"
-	p.Nombre = nuevo_nombre
+func ModificarPersonaDB(db *sql.DB, p models.Persona, personaAux models.Persona) (models.Persona, error) {
 
-	// Ejecutar la consulta SQL de modificación
-	_, err := db.Exec(query, id, nuevo_nombre)
-	if err != nil {
-		return fmt.Errorf("error al modificar persona en la base de datos: %w", err)
+	if p.Nombre != "" {
+		personaAux.Nombre = p.Nombre
+	}
+	if p.Apellido != "" {
+		personaAux.Apellido = p.Apellido
+	}
+	if p.Edad > 0 {
+		personaAux.Edad = p.Edad
+	}
+	if p.CountryCode != "" {
+		personaAux.CountryCode = p.CountryCode
+	}
+
+	query := "UPDATE personas SET nombre = $1, apellido = $2, edad = $3, country_code = $4 WHERE id = $5 RETURNING *;"
+	row := db.QueryRow(query, personaAux.Nombre, personaAux.Apellido, personaAux.Edad, personaAux.CountryCode, personaAux.ID)
+
+	if err := row.Scan(&p.ID, &p.Nombre, &p.Apellido, &p.Edad, &p.CountryCode); err != nil {
+		return models.Persona{}, fmt.Errorf("error al devolver persona actualizada, error: %w", err)
 	}
 
 	fmt.Println("Persona modificada correctamente")
-	return nil
-}
+	return p, nil
 
-func ModificarApellidoPersona(db *sql.DB, id int, p models.Persona, nuevo_apellido string) error {
-	// Preparar la consulta SQL de modificación
-	query := "UPDATE personas SET apellido = $2 WHERE id = $1"
-	p.Apellido = nuevo_apellido
-
-	// Ejecutar la consulta SQL de modificación
-	_, err := db.Exec(query, id, nuevo_apellido)
-	if err != nil {
-		return fmt.Errorf("error al modificar persona en la base de datos: %w", err)
-	}
-
-	fmt.Println("Persona modificada correctamente")
-	return nil
-}
-
-func ModificarEdadPersona(db *sql.DB, id int, p models.Persona, nueva_edad int) error {
-	// Preparar la consulta SQL de modificación
-	query := "UPDATE personas SET edad = $2 WHERE id = $1"
-	p.Edad = nueva_edad
-
-	// Ejecutar la consulta SQL de modificación
-	_, err := db.Exec(query, id, nueva_edad)
-	if err != nil {
-		return fmt.Errorf("error al modificar persona en la base de datos: %w", err)
-	}
-
-	fmt.Println("Persona modificada correctamente")
-	return nil
-}
-
-func ModificarCountryCodePersona(db *sql.DB, id int, p models.Persona, nuevo_country_code string) error {
-	// Preparar la consulta SQL de modificación
-	query := "UPDATE personas SET country_code = $2 WHERE id = $1"
-	p.CountryCode = nuevo_country_code
-
-	// Ejecutar la consulta SQL de modificación
-	_, err := db.Exec(query, id, nuevo_country_code)
-	if err != nil {
-		return fmt.Errorf("error al modificar persona en la base de datos: %w", err)
-	}
-
-	fmt.Println("Persona modificada correctamente")
-	return nil
 }
 
 func EliminarPersona(db *sql.DB, id int) error {
