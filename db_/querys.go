@@ -77,19 +77,6 @@ func ObtenerPersonaDB(db *sql.DB, id int) (models.Persona, error) {
 
 func ModificarPersonaDB(db *sql.DB, p models.Persona, personaAux models.Persona) (models.Persona, error) {
 
-	if p.Nombre != "" {
-		personaAux.Nombre = p.Nombre
-	}
-	if p.Apellido != "" {
-		personaAux.Apellido = p.Apellido
-	}
-	if p.Edad > 0 {
-		personaAux.Edad = p.Edad
-	}
-	if p.CountryCode != "" {
-		personaAux.CountryCode = p.CountryCode
-	}
-
 	query := "UPDATE personas SET nombre = $1, apellido = $2, edad = $3, country_code = $4 WHERE id = $5 RETURNING *;"
 	row := db.QueryRow(query, personaAux.Nombre, personaAux.Apellido, personaAux.Edad, personaAux.CountryCode, personaAux.ID)
 
@@ -102,7 +89,7 @@ func ModificarPersonaDB(db *sql.DB, p models.Persona, personaAux models.Persona)
 
 }
 
-func EliminarPersona(db *sql.DB, id int) error {
+func EliminarPersonaDB(db *sql.DB, id int) error {
 	// Preparar la consulta SQL de inserción
 	query := "DELETE FROM personas WHERE id = $1 RETURNING id;"
 

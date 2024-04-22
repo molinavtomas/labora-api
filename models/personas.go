@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 type Persona struct {
 	ID          int    `json:"id"`
 	Nombre      string `json:"nombre"`
@@ -11,6 +13,14 @@ type Persona struct {
 type PersonaExtendida struct {
 	Persona
 	CountryInfo
+}
+
+type ErrorPersonaInvalida struct {
+	Mensaje string
+}
+
+func (e *ErrorPersonaInvalida) Error() string {
+	return fmt.Sprintf("Error: Persona inválida. %s", e.Mensaje)
 }
 
 func (p *Persona) Validate() bool {

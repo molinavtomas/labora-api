@@ -18,7 +18,7 @@ func GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	personas, err := db_.ObtenerPersonas(db)
+	personas, err := service.ObtenerPersonas(db)
 	if err != nil {
 		http.Error(w, "ERROR: "+err.Error(), http.StatusBadRequest)
 		return
@@ -69,19 +69,11 @@ func PostUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validar la persona
-	if !persona.Validate() {
-		http.Error(w, "ERROR: La persona no es válida", http.StatusBadRequest)
-		return
-	}
-
-	newPersonID, err := db_.CreatePersona(db, persona)
+	_, err = service.CrearPersona(db, &persona)
 	if err != nil {
 		http.Error(w, "ERROR: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	persona.ID = newPersonID
 
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(persona); err != nil {
@@ -128,7 +120,7 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	idAsInt, _ := strconv.Atoi(idString)
 
-	err = db_.EliminarPersona(db, idAsInt)
+	err = service.EliminarPersona(db, idAsInt)
 	if err != nil {
 		http.Error(w, "ERROR: "+err.Error(), http.StatusBadRequest)
 		return

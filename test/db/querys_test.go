@@ -9,8 +9,7 @@ import (
 
 func TestObtenerPersonaPorID(t *testing.T) {
 	// Conectar a la base de datos
-	conectionString := "user=postgres dbname=personas_db_testing host=localhost sslmode=disable password=kys0128tomas port=5432"
-	db, err := ConectionDBTesting(conectionString)
+	db, err := ConectionDBTesting()
 	if err != nil {
 		t.Fatalf("Error al conectar a la base de datos: %v", err)
 	}
@@ -42,8 +41,7 @@ func TestObtenerPersonaPorID(t *testing.T) {
 
 func TestObtenerPersonaPorID_Falla(t *testing.T) {
 	// Conectar a la base de datos
-	conectionString := "user=postgres dbname=personas_db_testing host=localhost sslmode=disable password=kys0128tomas port=5432"
-	db, err := ConectionDBTesting(conectionString)
+	db, err := ConectionDBTesting()
 	if err != nil {
 		t.Fatalf("Error al conectar a la base de datos: %v", err)
 	}
@@ -65,8 +63,7 @@ func TestObtenerPersonaPorID_Falla(t *testing.T) {
 
 func TestCreatePersona(t *testing.T) {
 	// Conectar a la base de datos
-	conectionString := "user=postgres dbname=personas_db_testing host=localhost sslmode=disable password=kys0128tomas port=5432"
-	db, err := ConectionDBTesting(conectionString)
+	db, err := ConectionDBTesting()
 	if err != nil {
 		t.Fatalf("Error al conectar a la base de datos: %v", err)
 	}
@@ -95,8 +92,7 @@ func TestCreatePersona(t *testing.T) {
 
 func TestCreatePersona_Falla(t *testing.T) {
 	// Conectar a la base de datos
-	conectionString := "user=postgres dbname=personas_db_testing host=localhost sslmode=disable password=kys0128tomas port=5432"
-	db, err := ConectionDBTesting(conectionString)
+	db, err := ConectionDBTesting()
 	if err != nil {
 		t.Fatalf("Error al conectar a la base de datos: %v", err)
 	}
@@ -117,8 +113,7 @@ func TestCreatePersona_Falla(t *testing.T) {
 }
 
 func TestObtenerPersonas_Valido(t *testing.T) {
-	conectionString := "user=postgres dbname=personas_db_testing host=localhost sslmode=disable password=kys0128tomas port=5432"
-	db, err := ConectionDBTesting(conectionString)
+	db, err := ConectionDBTesting()
 	if err != nil {
 		t.Fatalf("Error al conectar a la base de datos: %v", err)
 	}
@@ -140,8 +135,7 @@ func TestObtenerPersonas_Fallido(t *testing.T) {
 }
 
 func TestModificarPersonaDB_Valido(t *testing.T) {
-	conectionString := "user=postgres dbname=personas_db_testing host=localhost sslmode=disable password=kys0128tomas port=5432"
-	db, err := ConectionDBTesting(conectionString)
+	db, err := ConectionDBTesting()
 	if err != nil {
 		t.Fatalf("Error al conectar a la base de datos: %v", err)
 	}
