@@ -31,18 +31,6 @@ func ConectionDB() error {
 		return fmt.Errorf("error al establecer la conexión a la base de datos: %w", err)
 	}
 
-	// Ejecutar la consulta para crear la tabla personas si no existe
-	_, err = DBConnection.Exec(`CREATE TABLE IF NOT EXISTS personas (
-		id SERIAL PRIMARY KEY,
-		nombre VARCHAR(100) NOT NULL,
-		apellido VARCHAR(100) NOT NULL,
-		edad INTEGER NOT NULL,
-		country_code VARCHAR(10) NOT NULL
-	);`)
-	if err != nil {
-		return fmt.Errorf("error al crear la tabla personas: %w", err)
-	}
-
 	fmt.Println("Conexión exitosa a la base de datos!")
 	return nil
 }
