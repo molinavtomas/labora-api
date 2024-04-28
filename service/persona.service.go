@@ -1,19 +1,18 @@
 package service
 
 import (
-	"database/sql"
 	"fmt"
 
 	"github.com/molinavtomas/labora-api-personas/db_"
 	"github.com/molinavtomas/labora-api-personas/models"
 )
 
-func CrearPersona(db *sql.DB, p *models.Persona) (int, error) {
+func CrearPersona(p *models.Persona) (int, error) {
 	if !p.Validate() {
 		return -1, &models.ErrorPersonaInvalida{Mensaje: "La persona no es válida"}
 	}
 
-	id, err := db_.CreatePersona(db, *p)
+	id, err := db_.CreatePersona(*p)
 	if err != nil {
 		return -1, err
 	}
@@ -25,8 +24,8 @@ func CrearPersona(db *sql.DB, p *models.Persona) (int, error) {
 
 }
 
-func ObtenerPersona(db *sql.DB, id int) (models.PersonaExtendida, error) {
-	persona, err := db_.ObtenerPersonaDB(db, id)
+func ObtenerPersona(id int) (models.PersonaExtendida, error) {
+	persona, err := db_.ObtenerPersonaDB(id)
 	if err != nil {
 		return models.PersonaExtendida{}, err
 	}
@@ -44,17 +43,17 @@ func ObtenerPersona(db *sql.DB, id int) (models.PersonaExtendida, error) {
 	}, nil
 }
 
-func ObtenerPersonas(db *sql.DB) ([]models.Persona, error) {
-	personas, err := db_.ObtenerPersonas(db)
+func ObtenerPersonas() ([]models.Persona, error) {
+	personas, err := db_.ObtenerPersonas()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error al obtener personas en el servicio: %w", err)
 	}
 
 	return personas, nil
 }
 
-func ModificarPersona(db *sql.DB, p models.Persona) (models.Persona, error) {
-	personaAux, err := db_.ObtenerPersonaDB(db, p.ID)
+func ModificarPersona(p models.Persona) (models.Persona, error) {
+	personaAux, err := db_.ObtenerPersonaDB(p.ID)
 	if err != nil {
 		return models.Persona{}, err
 	}
@@ -74,7 +73,7 @@ func ModificarPersona(db *sql.DB, p models.Persona) (models.Persona, error) {
 		personaAux.CountryCode = p.CountryCode
 	}
 
-	p, err = db_.ModificarPersonaDB(db, p, personaAux)
+	p, err = db_.ModificarPersonaDB(p, personaAux)
 	if err != nil {
 		return models.Persona{}, err
 	}
@@ -84,8 +83,8 @@ func ModificarPersona(db *sql.DB, p models.Persona) (models.Persona, error) {
 
 }
 
-func EliminarPersona(db *sql.DB, id int) error {
-	err := db_.EliminarPersonaDB(db, id)
+func EliminarPersona(id int) error {
+	err := db_.EliminarPersonaDB(id)
 	if err != nil {
 		return err
 	}

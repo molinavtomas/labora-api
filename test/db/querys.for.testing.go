@@ -8,9 +8,81 @@ import (
 	"github.com/molinavtomas/labora-api-personas/models"
 )
 
+func CreatePersonaForTesting(db *sql.DB, p models.Persona) (int, error) {
+	if !p.Validate() {
+		return -1, &models.ErrorPersonaInvalida{Mensaje: "La persona no es válida"}
+	}
+
+	nombre := p.Nombre
+	apellido := p.Apellido
+	edad := p.Edad
+	country_code := p.CountryCode
+
+	// Preparar la consulta SQL
+	query := "INSERT INTO personas (nombre, apellido, edad, country_code) VALUES ($1, $2, $3, $4) RETURNING id;"
+
+	// Ejecutar la consulta
+	row := db.QueryRow(query, nombre, apellido, edad, country_code)
+
+	var id_ int
+	if err := row.Scan(&id_); err != nil {
+		return -1, fmt.Errorf("error al crear persona en la base de datos: %w", err)
+	}
+
+	fmt.Println("Persona creada correctamente")
+	return id_, nil
+}
+
+func ObtenerPersonasForTesting(db *sql.DB) ([]models.Persona, error) {
+	// Preparar la consulta SQL
+	query := "SELECT * FROM personas"
+
+	// Ejecutar la consulta SQL
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("error al obtener las personas en la base de datos: %w", err)
+	}
+
+	defer rows.Close()
+
+	// Iterar sobre los resultados y mapearlos a la estructura Persona
+	var personas []models.Persona
+
+	for rows.Next() {
+		var persona models.Persona
+		if err := rows.Scan(&persona.ID, &persona.Nombre, &persona.Apellido, &persona.Edad, &persona.CountryCode); err != nil {
+			return nil, fmt.Errorf("error al escanear fila: %w", err)
+		}
+		personas = append(personas, persona)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error en las filas: %w", err)
+	}
+
+	fmt.Println("Datos obtenidos correctamente")
+	return personas, nil
+}
+
+func ObtenerPersonaDBForTesting(db *sql.DB, id int) (models.Persona, error) {
+	// Preparar la consulta SQL
+	query := "SELECT * FROM personas where id = $1"
+
+	// Ejecutar la consulta SQL
+	row := db.QueryRow(query, id)
+
+	var persona models.Persona
+	if err := row.Scan(&persona.ID, &persona.Nombre, &persona.Apellido, &persona.Edad, &persona.CountryCode); err != nil {
+		return models.Persona{}, fmt.Errorf("persona con ID %d no encontrada en la base de datos, error: %w", id, err)
+	}
+
+	fmt.Println("Datos obtenidos correctamente")
+	return persona, nil
+}
+
 func ModificarPersonaForTesting(db *sql.DB, p models.Persona, personaAux models.Persona) (models.Persona, error) {
 
-	personaAux, err := db_.ObtenerPersonaDB(db, p.ID)
+	personaAux, err := db_.ObtenerPersonaDB(p.ID)
 	if err != nil {
 		return models.Persona{}, err
 	}
@@ -42,27 +114,16 @@ func ModificarPersonaForTesting(db *sql.DB, p models.Persona, personaAux models.
 
 }
 
-func CreatePersonaTesting(db *sql.DB, p models.Persona) (int, error) {
-	if !p.Validate() {
-		return -1, &models.ErrorPersonaInvalida{Mensaje: "La persona no es válida"}
+func EliminarPersonaDBForTesting(db *sql.DB, id int) error {
+	// Preparar la consulta SQL de inserción
+	query := "DELETE FROM personas WHERE id = $1 RETURNING id;"
+
+	// Ejecutar la consulta SQL de inserción
+	_, err := db.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("error al eliminar persona en la base de datos: %w", err)
 	}
 
-	nombre := p.Nombre
-	apellido := p.Apellido
-	edad := p.Edad
-	country_code := p.CountryCode
-
-	// Preparar la consulta SQL
-	query := "INSERT INTO personas (nombre, apellido, edad, country_code) VALUES ($1, $2, $3, $4) RETURNING id;"
-
-	// Ejecutar la consulta
-	row := db.QueryRow(query, nombre, apellido, edad, country_code)
-
-	var id_ int
-	if err := row.Scan(&id_); err != nil {
-		return -1, fmt.Errorf("error al crear persona en la base de datos: %w", err)
-	}
-
-	fmt.Println("Persona creada correctamente")
-	return id_, nil
+	fmt.Println("Persona eliminada correctamente")
+	return nil
 }

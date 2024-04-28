@@ -4,10 +4,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/molinavtomas/labora-api-personas/db_"
 	"github.com/molinavtomas/labora-api-personas/routes"
 )
 
 func main() {
+	err := db_.ConectionDB()
+	if err != nil {
+		fmt.Println("Error al iniciar la base de datos:", err)
+	}
+
 	router := http.NewServeMux()
 
 	router.HandleFunc("/", routes.HomeHandler)
@@ -19,7 +25,7 @@ func main() {
 
 	fmt.Println("Servidor iniciado en el puerto 8080...")
 
-	err := http.ListenAndServe(":8080", router)
+	err = http.ListenAndServe(":8080", router)
 	if err != nil {
 		fmt.Println("Error al iniciar el servidor:", err)
 	}

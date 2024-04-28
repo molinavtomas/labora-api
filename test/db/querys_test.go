@@ -3,7 +3,6 @@ package test
 import (
 	"testing"
 
-	"github.com/molinavtomas/labora-api-personas/db_"
 	"github.com/molinavtomas/labora-api-personas/models"
 )
 
@@ -24,7 +23,7 @@ func TestObtenerPersonaPorID(t *testing.T) {
 	}
 
 	// Obtener la persona recién agregada por su ID
-	persona, err := db_.ObtenerPersonaDB(db, id_)
+	persona, err := ObtenerPersonaDBForTesting(db, id_)
 	if err != nil {
 		t.Fatalf("Error al obtener la persona por ID: %v", err)
 	}
@@ -49,7 +48,7 @@ func TestObtenerPersonaPorID_Falla(t *testing.T) {
 
 	// Intentar obtener una persona con un ID que no existe en la base de datos
 	idInexistente := 9999 // ID que no existe
-	persona, err := db_.ObtenerPersonaDB(db, idInexistente)
+	persona, err := ObtenerPersonaDBForTesting(db, idInexistente)
 	if err == nil {
 		t.Fatalf("Se esperaba un error al obtener la persona por ID %d, pero no se recibió ninguno", idInexistente)
 	}
@@ -78,7 +77,7 @@ func TestCreatePersona(t *testing.T) {
 	}
 
 	// Intentar crear la persona en la base de datos
-	id, err := db_.CreatePersona(db, p)
+	id, err := CreatePersonaForTesting(db, p)
 	if err != nil {
 		t.Fatalf("Error al crear la persona en la base de datos: %v", err)
 	}
@@ -101,7 +100,7 @@ func TestCreatePersona_Falla(t *testing.T) {
 	// Crear una persona con datos inválidos
 	personaInvalida := models.Persona{} // Datos inválidos
 
-	id, err := CreatePersonaTesting(db, personaInvalida)
+	id, err := CreatePersonaForTesting(db, personaInvalida)
 	if err == nil {
 		t.Fatalf("Se esperaba un error al crear una persona con datos inválidos, pero no se recibió ninguno")
 	}
@@ -120,7 +119,7 @@ func TestObtenerPersonas_Valido(t *testing.T) {
 	defer db.Close()
 
 	// Obtener las personas de la base de datos
-	personas, err := db_.ObtenerPersonas(db)
+	personas, err := ObtenerPersonasForTesting(db)
 	if err != nil {
 		t.Fatalf("Error al obtener las personas de la base de datos: %v", err)
 	}
@@ -149,7 +148,7 @@ func TestModificarPersonaDB_Valido(t *testing.T) {
 		t.Fatalf("Error: %v", &models.ErrorPersonaInvalida{Mensaje: "La persona no es válida"})
 	}
 
-	id, err := db_.CreatePersona(db, personaInicial)
+	id, err := CreatePersonaForTesting(db, personaInicial)
 	if err != nil {
 		t.Fatalf("Error al crear la persona en la base de datos: %v", err)
 	}
@@ -158,7 +157,7 @@ func TestModificarPersonaDB_Valido(t *testing.T) {
 	personaInicial.ID = id
 
 	// Obtener la persona recién agregada por su ID
-	_, err = db_.ObtenerPersonaDB(db, id)
+	_, err = ObtenerPersonaDBForTesting(db, id)
 	if err != nil {
 		t.Fatalf("Error al obtener la persona por ID: %v", err)
 	}
