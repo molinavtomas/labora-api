@@ -6,7 +6,7 @@ REST API usando Golang, PostgreSQL y la libreria net/http para el routing.
 
 Esta aplicacion esta pensada para ser desplegada con Docker. 
 
-## Requirements
+## Requerimientos
 
  - Golang 1.22.1
  - PostgreSQL
